@@ -16,7 +16,18 @@ class User(db.Model, UserMixin):
     email = db.Column(db.String(150), unique=True)
     password = db.Column(db.String(150))
     first_name = db.Column(db.String(150))
-    band = db.Column(db.String(150))
     availability = db.relationship("Availability")
+    memberships = db.relationship("User_Band_Junction")
+    active_band = db.Column(db.Integer, db.ForeignKey("bands.id"), default=1)
 
-    bandmates = {}
+class Bands(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    band_name = db.Column(db.String(150), unique=True)
+    members = db.relationship("User_Band_Junction")
+    active_band = db.relationship("User")
+
+
+class User_Band_Junction(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    band_name = db.Column(db.Integer, db.ForeignKey("bands.band_name"))
+    member_id = db.Column(db.Integer, db.ForeignKey("user.id"))

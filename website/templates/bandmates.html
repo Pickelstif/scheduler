@@ -1,116 +1,63 @@
 {% extends "base.html" %}
 {% block title %}Bandmates Calendar{% endblock %}
 {% block style %}
-    <style>
-        h1 {
-            text-align: center;
-        }
-        table {
-            border-collapse: collapse;
-            margin: auto;
-        }
-        td {
-            padding: 10px;
-            border: 1px solid #ddd;
-            text-align: center;
-        }
-        th.heading {
-            text-align: center;
-            font-size: 35px;
-        }
-        td.highlight {
-            background-color: #f00;
-            color: #fff;
-        }
-        td.selected {
-            background-color: #008000;
-            color: #fff;
-        }
-    </style>
+
 {% endblock %}
 
 
 {% block content %}
 
-    <form id="monthview" method="get" action="/bandmates">
-        <table>
-            <tr>
-                <th class="heading" colspan="100%">
-                    <input id="mdate" type="month" name="mdate" value="{{ year }}-{{ '%02d'|format(month) }}" oninput="this.form.submit()">
-                    <!--
-                    <input type="hidden" name="month" value="{{ month }}">
-                    {% set monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December" ] %}
-                    {% set monthName = monthNames[month - 1] %}
-                    {{ monthName }}
-                    -->
-                </th>
-            </tr>
-    </form>
-        {% for bandmate in bandmates_availabilities %}
-            <tr>
-                <th class="heading" colspan="100%">Bandmate: {{ bandmate }}
-<!--                        if I want to change to have a dropdown box to select bandmates-->
-<!--                  <select name="bandmates_box" id="bandmates_box" onchange="this.form.submit()">-->
-<!--                      {% for bandmate in user['bandmates_name'] %}-->
-<!--                        <option value="bandmate_{{ loop.index }}" {% if loop.index == active_bandmate: %} selected {% endif %}>-->
-<!--                                {{ bandmate }}</option>-->
-<!--                      {% endfor %}-->
-<!--                  </select>-->
-                </th>
-            </tr>
-            <tr>
-                <th>Mon</th>
-                <th>Tue</th>
-                <th>Wed</th>
-                <th>Thu</th>
-                <th>Fri</th>
-                <th>Sat</th>
-                <th>Sun</th>
-            </tr>
-<!--            <form id="calendar" method="post" action="/bandmates">-->
-            {% set selected_dates = [] %}
-            {% for availability in bandmates_availabilities[bandmate] %}
-                {% set _ = selected_dates.append(availability) %}
-            {% endfor %}
-            {% for week in cal %}
-                <tr>
+<div class="d-flex flex-column flex-md-row gap-4 pb-md-3 align-items-center justify-content-center">
+  <div class="dropdown-menu d-block position-static p-2 mx-0 shadow rounded-3 w-340px" data-bs-theme="light">
+    <div class="d-grid gap-1">
+      <div class="cal">
+          <form id="monthview" method="get" action="/bandmates">
+          <div class="cal-month">
+
+                <input class="cal-month-name" id="mdate" type="month" name="mdate" value="{{ year }}-{{ '%02d'|format(month) }}" oninput="monthview.submit()">
+
+            </div>
+          </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% for bandmate in bandmates_availabilities %}
+    <h1 class="text-body-emphasis text-center">Bandmate: {{ bandmate }}</h1>
+    <div class="d-flex flex-column flex-md-row gap-4 pb-md-5 align-items-center justify-content-center">
+        <div class="dropdown-menu d-block position-static p-2 mx-0 shadow rounded-3 w-340px" data-bs-theme="light">
+            <div class="d-grid gap-1">
+                <div class="cal">
+                    <div class="cal-weekdays text-body-secondary">
+                      <div class="cal-weekday">Mon</div>
+                      <div class="cal-weekday">Tue</div>
+                      <div class="cal-weekday">Wed</div>
+                      <div class="cal-weekday">Thu</div>
+                      <div class="cal-weekday">Fri</div>
+                      <div class="cal-weekday">Sat</div>
+                      <div class="cal-weekday">Sun</div>
+                    </div>
+                <div class="cal-days">
+                {% for week in cal %}
                     {% for day in week %}
                         {% if day == 0 %}
-                            <td></td>
+                        <button class="btn cal-btn" type="button" disabled></button>
                         {% else %}
-                            <td
-                                {% if day in selected_dates %}
-                                    class="selected"
-                                {% endif %}>{{ day }}</td>
+                        <button
+                        {% if day in bandmates_availabilities[bandmate] %}
+                             class="btn cal-btn active" type="button" disabled>
+                        {% else %}
+                            class="btn cal-btn" type="button" disabled>
+                        {% endif %}{{ day }}
+                        </button>
                         {% endif %}
                     {% endfor %}
-                </tr>
-            {% endfor %}
-                <th class="heading" colspan="100%">
-<!--                    <input type="hidden" name="month" value="{{ month }}">-->
-<!--                    <input type="hidden" name="year" value="{{ year }}">-->
-<!--                    <button class="btn btn-primary" type="submit">Submit</button>-->
-                </th>
-        {% endfor %}
-        </table>
+                    {% endfor %}
+                </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
-
-<!--    </form>-->
-    <!--
-    <p>Choose a month:</p>
-    <ul>
-        <li><a href="{{ url_for('views.index', month=1, year=2023) }}">January</a></li>
-        <li><a href="{{ url_for('views.index', month=2, year=2023) }}">February</a></li>
-        <li><a href="{{ url_for('views.index', month=3, year=2023) }}">March</a></li>
-        <li><a href="{{ url_for('views.index', month=4, year=2023) }}">April</a></li>
-        <li><a href="{{ url_for('views.index', month=5, year=2023) }}">May</a></li>
-        <li><a href="{{ url_for('views.index', month=6, year=2023) }}">June</a></li>
-        <li><a href="{{ url_for('views.index', month=7, year=2023) }}">July</a></li>
-        <li><a href="{{ url_for('views.index', month=8, year=2023) }}">August</a></li>
-        <li><a href="{{ url_for('views.index', month=9, year=2023) }}">September</a></li>
-        <li><a href="{{ url_for('views.index', month=10, year=2023) }}">October</a></li>
-        <li><a href="{{ url_for('views.index', month=11, year=2023) }}">November</a></li>
-        <li><a href="{{ url_for('views.index', month=12, year=2023) }}">December</a></li>
-    </ul>
-    -->
+{% endfor %}
 {% endblock %}

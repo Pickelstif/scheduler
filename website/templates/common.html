@@ -1,13 +1,17 @@
 {% extends "base.html" %}
 {% block title %}Availability Calendar{% endblock %}
+{% block style %}
+
+{% endblock %}
+
 
 {% block content %}
-<h1 class="text-body-emphasis text-center">Availability for {{ user['first_name'] }}</h1>
-<div class="d-flex flex-column flex-md-row p-4 gap-4 py-md-5 align-items-center justify-content-center">
+    <h1 class="text-body-emphasis text-center">Common Days for {{ user.band.band_name }}</h1>
+   <div class="d-flex flex-column flex-md-row p-4 gap-4 py-md-5 align-items-center justify-content-center">
   <div class="dropdown-menu d-block position-static p-2 mx-0 shadow rounded-3 w-340px" data-bs-theme="light">
     <div class="d-grid gap-1">
       <div class="cal">
-          <form id="monthview" method="get" action="/">
+          <form id="monthview" method="post" action="/common">
           <div class="cal-month">
 
                 <input class="cal-month-name" id="mdate" type="month" name="mdate" value="{{ year }}-{{ '%02d'|format(month) }}" oninput="monthview.submit()">
@@ -23,22 +27,19 @@
           <div class="cal-weekday">Sat</div>
           <div class="cal-weekday">Sun</div>
         </div>
-      <form id="calendar" method="post" action="/">
         <div class="cal-days">
             {% for week in cal %}
                 {% for day in week %}
                     {% if day == 0 %}
-                        <button class="btn cal-btn" disabled="" type="button"></button>
+                        <button class="btn cal-btn" type="button" disabled></button>
                     {% else %}
                     <button
-                    {% if day in availabilities %}
-                         class="btn cal-btn active" type="button" aria-pressed="true" data-bs-toggle="button" autocomplete="off"
-                                onclick="toggleInputValueB(this)">
-                        <input type="hidden" name="dates" id="myInput{{ day }}" value="{{ day }}">
+                    {% if day in common_days %}
+                         class="btn cal-btn super" disabled>
+                    {% elif day in availabilities %}
+                        class="btn cal-btn active" disabled>
                     {% else %}
-                        class="btn cal-btn" type="button" data-bs-toggle="button" aria-pressed="false" autocomplete="off"
-                                onclick="toggleInputValueB(this)">
-                        <input type="hidden" name="dates" id="myInput{{ day }}" value="">
+                        class="btn cal-btn" disabled>
                     {% endif %}{{ day }}
                     </button>
                     {% endif %}
@@ -47,14 +48,7 @@
         </div>
       </div>
     </div>
-      <div class="text-center">
-          <input type="hidden" name="month" value="{{ month }}">
-            <input type="hidden" name="year" value="{{ year }}">
-            <button class="btn btn-primary" type="submit">Submit</button>
-      </div>
   </div>
-
 </div>
-</form>
 
 {% endblock %}

@@ -12,12 +12,13 @@ def create_app():
     app.config["SECRET_KEY"] = "yoursecretkey"
     #app.config['SQLALCHEMY_DATABASE_URI'] = DB_STRING
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///calendar.db'
+    #app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://Pickelstif:<MySQL>01@localhost/calendar2.sql' need to host a mysql server
     #   for pythonanywhere mysql connection string
     #  app.config[
     #     'SQLALCHEMY_DATABASE_URI'] = 'mysql://Pickelstif:<MySQL>01@Pickelstif.mysql.pythonanywhere-services.com/Pickelstif$calendar'
     db.init_app(app)  # need to do this because db was constructed without an app
 
-    from .models import User, Availability
+    from .models import User, Availability, Bands, User_Band_Junction
     with app.app_context():
         db.create_all()
 
@@ -34,14 +35,15 @@ def create_app():
     @login_manager.user_loader
     def load_user(id):
         user = User.query.get(int(id))
-        user.bandmates = {}
-        query = User.query.filter_by(band=user.band).all()
-        for name in query:
-            user.bandmates[name.email] = name.first_name
-
-        # user.bandmates['email'] = [name.email for name in User.query.filter_by(band=user.band) if name.email != user.email]
-        # user.bandmates['name'] = [name.first_name for name in User.query.filter_by(band=user.band) if name.first_name != user.first_name]
-        # added a custom parameter to the User model - must do it here to be persistent
+        try:
+            user.bandmates = []
+            user.bands = User_Band_Junction.query.filter_by(member_id=user.id).all()
+            user.band = Bands.query.filter_by(id=user.active_band).first()
+            query = User_Band_Junction.query.filter_by(band_name=user.band.band_name).all()
+            for member in query:
+                user.bandmates.append(member.member_id)
+        except:
+            print("but why")
         return user
 
     return app

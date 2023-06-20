@@ -3,7 +3,7 @@ from flask_login import current_user, login_required
 from datetime import datetime
 from calendar import monthcalendar
 from . import db
-from .models import Availability, User
+from .models import Availability, User, Bands, User_Band_Junction
 
 views = Blueprint('views', __name__)
 
@@ -15,9 +15,9 @@ def availabilities(month, user=current_user):
     return days
 
 
-def get_date(input=datetime.now().strftime("%Y-%m")):
+def get_date(form_date=datetime.now().strftime("%Y-%m")):
     try:
-        year, month = input.split("-")
+        year, month = form_date.split("-")
         output = [int(year), int(month)]
     except:
         year, month = datetime.now().strftime("%Y-%m").split("-")
@@ -25,10 +25,32 @@ def get_date(input=datetime.now().strftime("%Y-%m")):
     return output
 
 
+def update_band(band_name):
+    current_user.active_band = Bands.query.filter_by(band_name=band_name).first().id
+    db.session.commit()
+
+
+def add_band(band_name):
+    band = Bands.query.filter_by(band_name=band_name).first()
+    if band:
+        membership = User_Band_Junction.query.filter_by(band_name=band_name, member_id=current_user.id).first()
+        if membership:
+            return flash("You're already a member.", category="error")
+    else:
+        new_band = Bands(band_name=band_name)
+        db.session.add(new_band)
+        db.session.commit()
+
+    new_member = User_Band_Junction(band_name=band_name, member_id=current_user.id)
+    db.session.add(new_member)
+    db.session.commit()
+
+
 @views.route('/', methods=['GET', 'POST'])
 @login_required
 def index():
     if request.method == 'POST':
+        print(request.form)
         date_as_string = f'{request.form.get("year")}-{request.form.get("month")}'
         form_date = get_date(date_as_string)
         # print(Availability().query.filter_by(month=request.form.get("month")).all()) --- a way to query a database
@@ -56,14 +78,14 @@ def index():
                                availabilities=avail_days, user=current_user)
 
 
-@views.route('/available', methods=['GET', 'POST'])
+@views.route('/common', methods=['GET', 'POST'])
 @login_required
-def available(): # common days tab
+def common():  # common days tab
     form_date = get_date(request.form.get('mdate', datetime.now().strftime("%Y-%m")))
     cal = monthcalendar(form_date[0], form_date[1])
-    user_ids = [user.id for user in User.query.filter_by(band=current_user.band).all()]  # important SQLAlchemy usage
+    # user_ids = [user.id for user in User.query.filter_by(band=current_user.band).all()]  # important SQLAlchemy usage
     all_user_days = []
-    for ids in user_ids:
+    for ids in current_user.bandmates:
         user_days = [int(x.day) for x in Availability.query.filter_by(user_id=ids, month=str(form_date[1])).all()]
         if user_days:
             all_user_days.append(user_days)
@@ -72,13 +94,39 @@ def available(): # common days tab
     except TypeError:
         common_days = []
     avail_days = availabilities(form_date[1])
-    return render_template('available.html', cal=cal, month=form_date[1], year=form_date[0],
+    return render_template('common.html', cal=cal, month=form_date[1], year=form_date[0],
                            availabilities=avail_days, common_days=common_days, user=current_user)
+
 
 @views.route('/bandmates', methods=['GET', 'POST'])
 @login_required
 def bandmates():
     form_date = get_date(request.args.get('mdate', datetime.now().strftime("%Y-%m")))
     cal = monthcalendar(form_date[0], form_date[1])
-    bandmates_availabilities = {current_user.bandmates[bandmate]:availabilities(form_date[1], user=User.query.filter_by(email=bandmate).first()) for bandmate in current_user.bandmates}
-    return render_template('bandmates.html', cal=cal, month=form_date[1], year=form_date[0], user=current_user, bandmates_availabilities=bandmates_availabilities)
+    bandmates_availabilities = {}
+    for bandmate_id in current_user.bandmates:
+        bandmate = User.query.filter_by(id=bandmate_id).first()
+        bandmates_availabilities[bandmate.first_name] = availabilities(form_date[1], user=bandmate)
+    return render_template('bandmates.html', cal=cal, month=form_date[1], year=form_date[0], user=current_user,
+                           bandmates_availabilities=bandmates_availabilities)
+
+
+@views.route('/update-band-f', methods=['POST'])
+@login_required
+def update_band_f():
+    if request.method == "POST":
+        band_name = request.form.get("band")
+        update_band(band_name)
+        return redirect(url_for("views.common"))
+
+
+@views.route('/add-new-band', methods=['GET', 'POST'])
+@login_required
+def add_new_band():
+    if request.method == "POST":
+        band_name = request.form.get("band_name")
+        add_band(band_name)
+        update_band(band_name)
+        return redirect(url_for('views.common'))
+
+    return render_template('add-new-band.html', user=current_user)

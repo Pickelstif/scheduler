@@ -1,68 +1,81 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1"/>
-     <link
-        rel="stylesheet"
-        href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
-      integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh"
-      crossorigin="anonymous"
-    />
-    <link
-      rel="stylesheet"
-      href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"
-      crossorigin="anonymous"
-    />
-    {% block style %}{% endblock %}
-    <title>{% block title %}Home{% endblock %}</title>
-</head>
-<body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar">
-            <span class="navbar-toggler-icon">
-            </span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbar">
-            <div class="navbar-nav">
-                {% if user.is_authenticated %}
-                <a class="nav-item nav-link" id="home" href="/">Your Availability</a>
-                <a class="nav-item nav-link" id="common" href="/available">Common Days</a>
-                <a class="nav-item nav-link" id="bandmates" href="/bandmates">Bandmates Availability</a>
-                <a class="nav-item nav-link" id="logout" href="/logout">Logout</a>
+  <head>
+      <title>{% block title %}Home{% endblock %}</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+          rel="stylesheet" integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM"
+          crossorigin="anonymous">
+      <link rel="stylesheet" type="text/css" href= "{{ url_for('static',filename='css/scheduler.css') }}">
+       {% block style %}{% endblock %}
 
-                {% else %}
-                <a class="nav-item nav-link" id="login" href="/login">Login</a>
-                <a class="nav-item nav-link" id="sign-up" href="/sign-up">Sign-up</a>
-                {% endif %}
-            </div>
+    </head>
+<body style="background-image: url({{ url_for('static', filename='img/bg.webp') }}); background-color: rgba(255, 255, 255, 0.92);
+  background-blend-mode: overlay;">
 
-            {% if user.is_authenticated %}
-                <div class="navbar-nav"
-                        style="margin-left: auto;
-                            margin-right: 0;">
-                    <p class="nav-item nav-link" style="font-size: smaller;">You're logged in as {{ user['first_name'] }} from {{ user['band'] }}.</p>
-                </div>
-            {% endif %}
+
+<div class="container">
+    <header class="d-flex flex-wrap align-items-center justify-content-center justify-content-md-between py-3 mb-4 border-bottom">
+      <div class="col-md-3 mb-2 mb-md-0">
+        <a href="/" class="d-inline-flex link-body-emphasis text-decoration-none">
+          <svg xmlns="http://www.w3.org/2000/svg" width="40" height="32" fill="currentColor" class="bi bi-calendar4-event" viewBox="0 0 16 16">
+              <path d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5zM2 2a1 1 0 0 0-1 1v1h14V3a1 1 0 0 0-1-1H2zm13 3H1v9a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V5z"></path>
+              <path d="M11 7.5a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1z"></path>
+            </svg>
+        </a>
+      </div>
+        {% if user.is_authenticated %}
+      <ul class="nav col-12 col-md-auto mb-2 justify-content-center mb-md-0">
+        <li><a href="/" class="nav-link px-2 link-body-emphasis">Availability</a></li>
+        <li><a href="/common" class="nav-link px-2 link-body-emphasis">Common</a></li>
+        <li><a href="/bandmates" class="nav-link px-2 link-body-emphasis">Bandmates</a></li>
+
+      </ul>
+        <div class="col-md-3 text-end">
+            <a href="#" class="link-body-emphasis text-decoration-none dropdown-toggle me-2" data-bs-toggle="dropdown" aria-expanded="false">
+            <svg class="rounded-circle" xmlns="http://www.w3.org/2000/svg" width="64px" height="64px" viewBox="0 0 64 64">
+                <rect fill="#ddd"cx="32" width="64" height="64" cy="32" r="32"/>
+                <text x="50%" y="50%" style="color: #222; line-height: 1;font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI',
+                'Roboto', 'Oxygen', 'Ubuntu', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;" alignment-baseline="middle"
+                      text-anchor="middle" font-size="28" font-weight="400" dy=".1em" dominant-baseline="middle" fill="#222">{{ user.first_name[0] }}</text>
+            </svg>
+          </a>
+          <ul class="dropdown-menu text-small">
+            {% for band in user['bands'] %}
+          <form id="band_{{ band.band_name }}" action="/update-band-f" method="post">
+                    <input type="hidden" name= "band" value="{{ band.band_name }}">
+                    <li><a href="javascript:document.getElementById('band_{{ band.band_name }}').submit()"
+                           class="dropdown-item">{{ band.band_name }}</a></li>
+          </form>
+          {% endfor %}
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item" href="/add-new-band">Add new band</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item" href="/logout">Sign out</a></li>
+          </ul>
+            {% else %}
+        <div class="col-md-3 text-end">
+            <a type="button" class="btn btn-outline-primary me-2" href="/login">Login</a>
+            <a type="button" class="btn btn-primary" href="/sign-up">Sign-up</a>
+        {% endif %}
         </div>
-    </nav>
-
+    </header>
+  </div>
 
     {% with messages = get_flashed_messages(with_categories=true) %}
     {% if messages%}
         {% for category, message in messages %}
         {% if category == 'error' %}
-        <div class="alert alert-danger alter-dismissable fade show" role="alert">
+        <div class="alert alert-warning alert-dismissible fade show" role="alert">
             {{ message }}
-            <button type="button" class="close" data-dismiss="alert">
-                <span aria-hidden="true">&times;</span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close">
             </button>
         </div>
         {% else %}
-        <div class="alert alert-success alter-dismissable fade show" role="alert">
+        <div class="alert alert-success alter-dismissible fade show" role="alert">
             {{ message }}
-            <button type="button" class="close" data-dismiss="alert">
-                <span aria-hidden="true">&times;</span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close">
             </button>
         </div>
         {% endif %}
@@ -77,6 +90,17 @@
     </div>
 
     <script>
+      function toggleInputValueB(button) {
+        var input = button.querySelector('input');
+        var buttonNumber = button.textContent.trim();
+        if (input.value === '') {
+          input.value = buttonNumber;
+        } else {
+          input.value = '';
+        }
+      }
+</script>
+    <script>
         function toggleInputValue(td) {
           var inputId = 'myInput' + td.textContent.trim(); // get the text content of the <td> and use it to construct the ID of the input element
           var input = document.getElementById(inputId);
@@ -87,21 +111,10 @@
           }
         }
     </script>
-
-    <script
-      src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
-      integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
-      crossorigin="anonymous"
-    ></script>
-    <script
-      src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
-      integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
-      crossorigin="anonymous"
-    ></script>
-    <script
-      src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
-      integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
-      crossorigin="anonymous"
-    ></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz"
+            crossorigin="anonymous"></script>
+      <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+      <script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
 </body>
 </html>
