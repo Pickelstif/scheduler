@@ -46,7 +46,7 @@
           <form id="band_{{ band.band_name }}" action="/update-band-f" method="post">
                     <input type="hidden" name= "band" value="{{ band.band_name }}">
                     <li><a href="javascript:document.getElementById('band_{{ band.band_name }}').submit()"
-                           class="dropdown-item">{{ band.band_name }}</a></li>
+                           class="dropdown-item{% if band.band_name == user.band.band_name %} fw-bold{% endif %}">{{ band.band_name }}</a></li>
           </form>
           {% endfor %}
             <li><hr class="dropdown-divider"></li>

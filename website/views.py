@@ -21,7 +21,10 @@ def get_date(form_date=datetime.now().strftime("%Y-%m")):
         output = [int(year), int(month)]
     except:
         year, month = datetime.now().strftime("%Y-%m").split("-")
-        output = [int(year), int(month)]
+        if datetime.now().day > 14:
+            output = [int(year), int(month) + 1]
+        else:
+            output = [int(year), int(month)]
     return output
 
 
@@ -81,7 +84,7 @@ def index():
 @views.route('/common', methods=['GET', 'POST'])
 @login_required
 def common():  # common days tab
-    form_date = get_date(request.form.get('mdate', datetime.now().strftime("%Y-%m")))
+    form_date = get_date(request.form.get('mdate'))
     cal = monthcalendar(form_date[0], form_date[1])
     # user_ids = [user.id for user in User.query.filter_by(band=current_user.band).all()]  # important SQLAlchemy usage
     all_user_days = []
@@ -101,7 +104,7 @@ def common():  # common days tab
 @views.route('/bandmates', methods=['GET', 'POST'])
 @login_required
 def bandmates():
-    form_date = get_date(request.args.get('mdate', datetime.now().strftime("%Y-%m")))
+    form_date = get_date(request.args.get('mdate'))
     cal = monthcalendar(form_date[0], form_date[1])
     bandmates_availabilities = {}
     for bandmate_id in current_user.bandmates:

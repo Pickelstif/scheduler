@@ -29,5 +29,5 @@ class Bands(db.Model):
 
 class User_Band_Junction(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    band_name = db.Column(db.Integer, db.ForeignKey("bands.band_name"))
+    band_name = db.Column(db.String(150), db.ForeignKey("bands.band_name"))
     member_id = db.Column(db.Integer, db.ForeignKey("user.id"))
