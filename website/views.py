@@ -29,8 +29,29 @@ def get_date(form_date=datetime.now().strftime("%Y-%m")):
 
 
 def update_band(band_name):
-    current_user.active_band = Bands.query.filter_by(band_name=band_name).first().id
+    band = Bands.query.filter_by(band_name=band_name).first().id
+    if band:
+        current_user.active_band = band
+    else:
+        current_user.active_band = 1
     db.session.commit()
+
+def remove_member(band_name):
+    band = Bands.query.filter_by(band_name=band_name).first()
+    if band:
+        membership = User_Band_Junction.query.filter_by(band_name=band_name, member_id=current_user.id).first()
+        if membership:
+            db.session.delete(membership)
+            db.session.commit()
+        #check if any member remains for the band. Delete the band if no one exists
+        any_member = User_Band_Junction.query.filter_by(band_name=band_name).first()
+        if not any_member:
+            db.session.delete(band)
+            db.session.commit()
+
+
+
+
 
 
 def add_band(band_name):
@@ -133,3 +154,18 @@ def add_new_band():
         return redirect(url_for('views.common'))
 
     return render_template('add-new-band.html', user=current_user)
+
+@views.route('/delete-band', methods=['GET', 'POST'])
+@login_required
+def delete_band():
+    if request.method == "POST":
+        band_name = request.form.get("band_name")
+        print(band_name)
+        remove_member(band_name)
+
+        first_membership = User_Band_Junction.query.filter_by(member_id=current_user.id).first().band_name
+        current_user.active_band = Bands.query.filter_by(band_name=first_membership).first().id
+        db.session.commit()
+        return redirect(url_for('views.common'))
+
+    return render_template('delete-band.html', user=current_user)
