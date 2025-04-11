@@ -1,0 +1,89 @@
+# Application Description: Band Scheduling System
+
+## Core Purpose
+This is a scheduling application designed specifically for bands and musical groups to coordinate their availability and find common rehearsal times.
+
+## Key Features
+
+### 1. User Management
+- User registration and authentication system
+- Users can create accounts with:
+  - Email address
+  - Password
+  - First name
+  - Band name
+
+### 2. Availability Management
+- Calendar-based interface for marking availability
+- Users can:
+  - Select specific days they are available
+  - View their availability by month
+  - Update their availability at any time
+  - See their availability history
+
+### 3. Band Coordination Features
+- Band members can:
+  - View common available days across all band members
+  - See individual band members' availability
+  - Coordinate rehearsal times based on everyone's schedules
+
+### 4. Calendar Interface
+- Monthly calendar view
+- Ability to navigate between months
+- Visual indicators for:
+  - Personal availability
+  - Common available days
+  - Band members' availability
+
+### 5. Data Structure
+- User profiles containing:
+  - Personal information
+  - Band affiliation
+  - Availability records
+- Availability records containing:
+  - Year
+  - Month
+  - Day
+  - User association
+
+### 6. User Interface Pages
+1. Login Page
+   - User authentication
+   - Password protection
+
+2. Sign-up Page
+   - New user registration
+   - Band information collection
+
+3. Main Calendar Page
+   - Personal availability management
+   - Month navigation
+   - Availability selection
+
+4. Common Days Page
+   - Shows overlapping availability across band members
+   - Helps identify potential rehearsal times
+
+5. Bandmates Page
+   - Individual band member availability view
+   - Side-by-side comparison of schedules
+
+## User Flow
+1. Users register with their email and band information
+2. Users log in to access their personal calendar
+3. Users mark their available days for each month
+4. Users can view common available days with their band
+5. Users can check individual band members' availability
+6. Band members can coordinate rehearsal times based on common availability
+
+## Security Features
+- User authentication required for all features
+- Password protection
+- Individual user data isolation
+- Band-specific data access
+
+## Data Relationships
+- Users belong to one or more bands
+- Users have multiple availability records
+- Availability records are linked to specific users
+- Band members can view each other's availability within the same band
